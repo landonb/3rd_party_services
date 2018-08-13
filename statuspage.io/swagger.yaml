@@ -216,10 +216,60 @@ definitions:
         type: string
         description: url
 
-  Log:
-    description: JSON Log Object. This can be any custom structure to be logged.
+  # FIXME: Can I list all the properties??
+  Page:
+    description: JSON Page Object. See https://doers.statuspage.io/api/v1/page_profile/
     type: object
     additionalProperties: true
+
+  Incident:
+    description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
+    type: object
+    # FIXME: Can I list all the properties??
+    #additionalProperties: true
+    properties:
+      name:
+        type: string
+        description: The name of the incident
+      status:
+        type: string
+        enum:
+          - investigating
+          - identified
+          - monitoring
+          - resolved
+        description: The status, one of investigating|identified|monitoring|resolved (optional, defaults to investigating if left blank)
+      body:
+        type: string
+        description: The initial message, created as the first incident update (optional)
+      wants_twitter_update:
+        type: boolean
+        description: Post the new incident to twitter (t or f, defaults to f)
+      impact_override:
+        type: string
+        enum:
+          - none
+          - minor
+          - major
+          - critical
+        description: Override calculated impact value, one of none|minor|major|critical (optional)
+      deliver_notifications:
+        type: boolean
+        description: 'Control whether notifications should be delivered for the initial incident update (optional, default: true)'
+      component_ids:
+        type: array
+        items:
+          type: string
+          description:  Component ID
+        description:  List of components affected by the incident
+      components:
+        type: object
+        # (lb): Object keys are the component IDs. Does this work?:
+        additionalProperties: true
+        #additionalProperties:
+        #  type: object
+        #  description:  XXX
+        description: incident[components][component_id] - Map of status changes to apply to affected components.
 
 ################################################################################
 #                                           Paths                              #
@@ -237,12 +287,12 @@ paths:
       tags:
         - calls
       operationId:  getPageProfile
-      summary:      Page Profile
+      summary:      Get your page profile
       description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
-      x-exosite-example:    |
-                    --#ENDPOINT GET /statuspage/pageProfile
+      x-exosite-example: |
+                    --#ENDPOINT GET /statuspage/getPageProfile
 
-                    pageProfile = Statuspage.pageProfile()
+                    pageProfile = Statuspage.getPageProfile()
 
                     print(to_json(pageProfile))
 
@@ -252,7 +302,7 @@ paths:
         default:
           schema:
             $ref:   "#/definitions/ErrorResponse"
-            description: Schema for error response from page_profile method.
+            description: Schema for error response from getPageProfile method.
           description: Example error response
           examples:
             application/json:
@@ -260,7 +310,7 @@ paths:
         200:
           schema:
             $ref: '#/definitions/pagesPageIdJson200'
-            description: Schema for successful response from page_profile method
+            description: Schema for successful response from getPageProfile method.
           description: Example success response
           examples:
             application/json:
@@ -303,29 +353,53 @@ paths:
               updated_at: 2013-03-02T19:59:47Z
               url: http://www.acmeapi.co
     patch:
-      description: Update the page profile.
       operationId: updatePageProfile
-      #consumes:
-      #  - application/json
+      description: Update the page profile.
+      x-exosite-example: |
+                    --#ENDPOINT GET /statuspage/updatePageProfile
+
+                    pp = Statuspage.updatePageProfile({page={url='https://exosite.io'}})
+
+                    print(to_json(pp))
+
+                    response.message = pp
       produces:
         - application/json
       parameters:
-        #- name: page
-        #  # ??? - name: page[url]
-        #  in: path
-        #  description: XXX.
-        #  type: object
+        # (lb): I'm not sure this is ideal, but it works.
+        #   - My concern is the API def'n, at
+        #       https://doers.statuspage.io/api/v1/page_profile/
+        #     shows curl such as
+        #       curl https://api.statuspage.io/v1/pages/qfn30z5r6s5h.json \
+        #         -H "Authorization: OAuth XXXX" \
+        #         -X PATCH \
+        #         -d "page[allow_page_subscribers]=false" \
+        #         -d "page[allow_incident_subscribers]=false" \
+        #         -d "page[name]=Acme Corp"
+        #     and I'm not sure how this `body` parameter makes that happen.
+        #     But it works for me....
+        #   - FIXME: If anything, it'd be nice to make it so user does not
+        #     have to specify "body" in the call, e.g., here's what works
+        #     for me:
+        #       pp = Hashtagbusinessstatuspage.updatePageProfile(
+        #              {page={url='https://exosite.io'}}
+        #            )
+        #   - FIXME: Note also the name of the service, which includes the
+        #     business name, e.g., "Hashtagbusinessstatuspage". How do we
+        #     avoid that? Or is that because I self-published under my
+        #     business, and this won't be a concern if Exosite publishes
+        #     the service?
         - name: body
           in: body
-          description:  JSON formatted log object
-          required:     true
+          description: JSON formatted page object
+          required: true
           schema:
-            $ref: "#/definitions/Log"
+            $ref: "#/definitions/Page"
       responses:
         default:
           schema:
-            $ref:   "#/definitions/ErrorResponse"
-            description: Schema for error response from page_profile method.
+            $ref: "#/definitions/ErrorResponse"
+            description: Schema for error response from updatePageProfile method.
           description: Example error response
           examples:
             application/json:
@@ -333,6 +407,98 @@ paths:
         200:
           schema:
             $ref: '#/definitions/pagesPageIdJson200'
-            description: Schema for successful response from page_profile method
+            description: Schema for successful response from updatePageProfile method.
           description: Example success response
+          examples:
+            application/json:
+              activity_score: 8
+              allow_email_subscribers: true
+              allow_incident_subscribers: true
+              allow_page_subscribers: true
+              allow_sms_subscribers: true
+              allow_webhook_subscribers: false
+              branding: "basic"
+              created_at: "2018-08-13T18:29:10Z"
+              css_blues: "3498DB"
+              css_body_background_color: "ffffff"
+              css_border_color: "E0E0E0"
+              css_font_color: "333333"
+              css_graph_color: "3498db"
+              css_greens: "2fcc66"
+              css_light_font_color: "AAAAAA"
+              css_link_color: "3498db"
+              css_oranges: "e67e22"
+              css_reds: "e74c3c"
+              css_yellows: "f1c40f"
+              email_logo:
+                normal_url: ""
+                original_url: ""
+                retina_url: ""
+              favicon_logo:
+                url: ""
+              hero_cover:
+                normal_url: ""
+                original_url: ""
+                retina_url: ""
+              hidden_from_search: false
+              id: "85f4v80q7nnp"
+              name: "Exosite LLC"
+              subdomain: "exositellc"
+              time_zone: "UTC"
+              transactional_logo:
+                normal_url: ""
+                original_url: ""
+                retina_url: ""
+              updated_at: "2018-08-13T22:03:13Z"
+              url: "https://exosite.io"
+              viewers_must_be_team_members: false
+
+  /pages/{page_id}/incidents.json:
+    parameters:
+      - name:         page_id
+        in:           path
+        description:  Statuspage Page ID
+        type:         string
+        required:     true
+        x-exosite-internal-use: true
+    post:
+      tags:
+        - calls
+      operationId:  createRealtimeIncident
+      summary:      Create a realtime incident
+      description:  Create a realtime incident
+      x-exosite-example: |
+                    --#ENDPOINT GET /statuspage/createRealtimeIncident
+
+                    incident = Statuspage.createRealtimeIncident(
+                      {incident={name='Slow response time'}}
+                    )
+
+                    print(to_json(incident))
+
+                    response.message = incident
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: JSON formatted page object
+          required: true
+          schema:
+            $ref: "#/definitions/Incident"
+      responses:
+        default:
+          schema:
+            $ref:   "#/definitions/ErrorResponse"
+            description: Schema for error response from getPageProfile method.
+          description: Example error response
+          examples:
+            application/json:
+              error: The requested resource could not be found.
+        201:
+          description: 'Successful incident creation'
+        422:
+          description: 'Validation failed (see errors in response body)'
+          schema:
+            $ref: '#/definitions/Error'
 
