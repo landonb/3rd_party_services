@@ -7,7 +7,7 @@ info:
   version:      "0.0.1"
   title:        Statuspage API
   description:  |
-                ## Get weather forecasts and historical weather data.
+                ## "The #1 status and incident communication tool."
 
                 This is a Murano Service integration with
                 [Statuspage](https://statuspage.io) to allow your Murano solution
@@ -232,7 +232,7 @@ paths:
     get:
       tags:
         - calls
-      operationId:  pagesPageIdJson
+      operationId:  page_profile
       summary:      Page Profile
       description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
       x-exosite-example:    |
