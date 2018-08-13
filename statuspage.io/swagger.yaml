@@ -1,0 +1,301 @@
+swagger:  "2.0"
+
+################################################################################
+#                              API Information                                 #
+################################################################################
+info:
+  version:      "0.0.1"
+  title:        Statuspage API
+  description:  |
+                ## Get weather forecasts and historical weather data.
+
+                This is a Murano Service integration with
+                [Statuspage](https://statuspage.io) to allow your Murano solution
+                to maintain a separately hosted status page, and to manage incidents
+                and notify users of status changes.
+                [Signup at their site](https://manage.statuspage.io/signup) and
+                enter the Page ID and User API Key, provided by StatusPage.io, below.
+  contact:
+    name:       Exosite Support
+    email:      support@exosite.com
+# documentation
+externalDocs:
+  description:  Statuspage API documentation
+  url:          https://doers.statuspage.io/api/v1/
+host:     api.statuspage.io
+# basePath prefixes all resource paths
+basePath: /v1
+# tags: Categories to be referenced in documentation & marketplace
+tags:
+  - name:         Integration
+    description:  Interface to communicate to the Statuspage API service
+schemes:
+  # the Statuspage REST API is served over HTTPS.
+  - https
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+
+################################################################################
+#                      Service Configuration Parameters                        #
+################################################################################
+x-exosite-config-parameters:
+  - name:         page_id
+    description:  Statuspage Page ID
+    type:         string
+    required:     true
+  - name:         user_api_key
+    description:  Statuspage User API Key
+    type:         string
+    format:       password
+    required:     true
+
+################################################################################
+#                              API Authentication                              #
+################################################################################
+securityDefinitions:
+  APIKeyHeader:
+     type: apiKey
+     in: header
+     name: Authorization
+  #Bearer:
+  #  type: apiKey
+  #  in: header
+  #  name: Authorization
+
+# Global security (applies to all operations):
+security:
+  - APIKeyHeader: []
+
+################################################################################
+#                                 Definitions                                  #
+################################################################################
+
+definitions:
+  ErrorResponse:
+    description: Request error
+    type: object
+    properties:
+      error:
+        type: string
+        description: Error message
+
+  pagesPageIdJson200HeroCover:
+    #required:
+    additionalProperties: true
+    title: page_profile.hero_cover schema
+    type: object
+    description: Schema for successful response from page_profile method's hero_cover
+    properties:
+      normal_url:
+        type: string
+        description: normal_url
+      original_url:
+        type: string
+        description: original_url
+      retina_url:
+        type: string
+        description: retina_url
+      size:
+        type: number
+        description: size
+      updated_at:
+        type: string
+        description: updated_at
+
+  pagesPageIdJson200TransactionalLogo:
+    #required:
+    additionalProperties: true
+    title: page_profile.transactional_logo schema
+    type: object
+    description: Schema for successful response from page_profile method's transactional_logo
+    properties:
+      normal_url:
+        type: string
+        description: normal_url
+      original_url:
+        type: string
+        description: original_url
+      retina_url:
+        type: string
+        description: retina_url
+      size:
+        type: number
+        description: size
+      updated_at:
+        type: string
+        description: updated_at
+
+  pagesPageIdJson200:
+    #required:
+    additionalProperties: true
+    title: page_profile schema
+    type: object
+    description: Schema for successful response from page_profile method
+    properties:
+      allow_email_subscriber:
+        type: boolean
+        description: allow_email_subscribers
+      allow_incident_subscribers:
+        type: boolean
+        description: allow_incident_subscribers
+      allow_page_subscribers:
+        type: boolean
+        description: allow_page_subscribers
+      allow_sms_subscribers:
+        type: boolean
+        description: allow_sms_subscribers
+      city:
+        type: string
+        description: city
+      country:
+        type: string
+        description: country
+      created_at:
+        type: string
+        description: created_at
+      css_body_background_color:
+        type: string
+        description: css_body_background_color
+      css_font_color:
+        type: string
+        description: css_font_color
+      css_greens:
+        type: string
+        description: css_greens
+      css_light_font_color:
+        type: string
+        description: css_light_font_color
+      css_oranges:
+        type: string
+        description: css_oranges
+      css_reds:
+        type: string
+        description: css_reds
+      css_yellows:
+        type: string
+        description: css_yellows
+      domain:
+        type: string
+        description: domain
+      hero_cover:
+        $ref: '#/definitions/pagesPageIdJson200HeroCover'
+        description: hero_cover
+      hidden_from_search:
+        type: boolean
+        description: hidden_from_search
+      id:
+        type: string
+        description: id
+      layout:
+        type: string
+        description: layout
+      name:
+        type: string
+        description: name
+      notifications_from_email:
+        type: string
+        description: notifications_from_email
+      state:
+        type: string
+        description: state
+      subdomain:
+        type: string
+        description: subdomain
+      time_zone:
+        type: string
+        description: time_zone
+      transactional_logo:
+        $ref: '#/definitions/pagesPageIdJson200TransactionalLogo'
+        description: transactional_logo
+      twitter_username:
+        type: string
+        description: twitter_username
+      updated_at:
+        description: updated_at
+      url:
+        type: string
+        description: url
+
+################################################################################
+#                                           Paths                              #
+################################################################################
+paths:
+  /pages/{page_id}.json:
+    parameters:
+      - name:         page_id
+        in:           path
+        description:  Statuspage Page ID
+        type:         string
+        required:     true
+        x-exosite-internal-use: true
+    get:
+      tags:
+        - calls
+      operationId:  pagesPageIdJson
+      summary:      Page Profile
+      description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
+      x-exosite-example:    |
+                    --#ENDPOINT GET /statuspage/page_profile
+
+                    page_profile = Statuspage.page_profile()
+
+                    print(to_json(page_profile))
+
+                    response.message = page_profile
+      #parameters:
+      responses:
+        default:
+          schema:
+            $ref:   "#/definitions/ErrorResponse"
+            description: Schema for error response from page_profile method.
+          description: Example error response
+          examples:
+            application/json:
+              error: The requested resource could not be found.
+        200:
+          schema:
+            $ref: '#/definitions/pagesPageIdJson200'
+            description: Schema for successful response from page_profile method
+          description: Example success response
+          examples:
+            application/json:
+              allow_email_subscribers: true
+              allow_incident_subscribers: true
+              allow_page_subscribers: true
+              allow_sms_subscribers: true
+              city: "null"
+              country: "null"
+              created_at: 2013-02-20T17:22:25Z
+              css_body_background_color: "null"
+              css_font_color: "null"
+              css_greens: "null"
+              css_light_font_color: "null"
+              css_oranges: "null"
+              css_reds: "null"
+              css_yellows: "null"
+              domain: status.acmeapi.co
+              hero_cover:
+                normal_url: 
+                original_url: 
+                retina_url: 
+                size: "null"
+                updated_at: "null"
+              hidden_from_search: false
+              id: nlrtts14f89x
+              layout: basic
+              name: Acme API Co.
+              notifications_from_email: "null"
+              state: "null"
+              subdomain: acmeapico
+              time_zone: Mountain Time (US & Canada)
+              transactional_logo:
+                normal_url: 
+                original_url: 
+                retina_url: 
+                size: "null"
+                updated_at: "null"
+              twitter_username: "null"
+              updated_at: 2013-03-02T19:59:47Z
+              url: http://www.acmeapi.co
+
