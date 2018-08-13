@@ -56,8 +56,10 @@ x-exosite-config-parameters:
 securityDefinitions:
   APIKeyHeader:
      type: apiKey
-     in: header
      name: Authorization
+     in: header
+     x-exosite-prefix: OAuth
+     x-exosite-from: user_api_key
   #Bearer:
   #  type: apiKey
   #  in: header
