@@ -236,13 +236,13 @@ paths:
       summary:      Page Profile
       description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
       x-exosite-example:    |
-                    --#ENDPOINT GET /statuspage/page_profile
+                    --#ENDPOINT GET /statuspage/pageProfile
 
-                    page_profile = Statuspage.page_profile()
+                    pageProfile = Statuspage.pageProfile()
 
-                    print(to_json(page_profile))
+                    print(to_json(pageProfile))
 
-                    response.message = page_profile
+                    response.message = pageProfile
       #parameters:
       responses:
         default:
