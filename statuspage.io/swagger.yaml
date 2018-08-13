@@ -58,12 +58,9 @@ securityDefinitions:
      type: apiKey
      name: Authorization
      in: header
-     x-exosite-prefix: OAuth
      x-exosite-from: user_api_key
-  #Bearer:
-  #  type: apiKey
-  #  in: header
-  #  name: Authorization
+     # E.g., curl -H "Authorization: OAuth {user_api_key}" ...
+     x-exosite-prefix: OAuth
 
 # Global security (applies to all operations):
 security:
@@ -219,6 +216,11 @@ definitions:
         type: string
         description: url
 
+  Log:
+    description: JSON Log Object. This can be any custom structure to be logged.
+    type: object
+    additionalProperties: true
+
 ################################################################################
 #                                           Paths                              #
 ################################################################################
@@ -234,7 +236,7 @@ paths:
     get:
       tags:
         - calls
-      operationId:  pageProfile
+      operationId:  getPageProfile
       summary:      Page Profile
       description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
       x-exosite-example:    |
@@ -300,4 +302,37 @@ paths:
               twitter_username: "null"
               updated_at: 2013-03-02T19:59:47Z
               url: http://www.acmeapi.co
+    patch:
+      description: Update the page profile.
+      operationId: updatePageProfile
+      #consumes:
+      #  - application/json
+      produces:
+        - application/json
+      parameters:
+        #- name: page
+        #  # ??? - name: page[url]
+        #  in: path
+        #  description: XXX.
+        #  type: object
+        - name: body
+          in: body
+          description:  JSON formatted log object
+          required:     true
+          schema:
+            $ref: "#/definitions/Log"
+      responses:
+        default:
+          schema:
+            $ref:   "#/definitions/ErrorResponse"
+            description: Schema for error response from page_profile method.
+          description: Example error response
+          examples:
+            application/json:
+              error: The requested resource could not be found.
+        200:
+          schema:
+            $ref: '#/definitions/pagesPageIdJson200'
+            description: Schema for successful response from page_profile method
+          description: Example success response
 
