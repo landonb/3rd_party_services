@@ -232,7 +232,7 @@ paths:
     get:
       tags:
         - calls
-      operationId:  page_profile
+      operationId:  pageProfile
       summary:      Page Profile
       description:  "Your page profile drives basic settings for your status page including your company name, notification preferences, and time zone."
       x-exosite-example:    |
