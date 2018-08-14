@@ -545,9 +545,9 @@ paths:
                     incident_table['incident[name]'] = 'Slow response time'
                     incident = Statuspage.createRealtimeIncident(incident_table)
 
-                    incident_table['incident[name]'] = 'Slow response time (resolved)'
+                    incident_table['incident_id'] = incident.id
                     incident_table['incident[status]'] = 'resolved'
-                    incident = Statuspage.updateIncident(incident.id, incident_table)
+                    incident = Statuspage.updateIncident(incident_table)
 
                     print(to_json(incident))
 
@@ -561,13 +561,6 @@ paths:
           required: true
           schema:
             $ref: "#/definitions/Incident"
-            #type: object
-            #description: The operation call containing the value to set.
-            #properties:
-            #  incident:
-            #    type: object
-            #    description: XXX
-            #    additionalProperties: true
       consumes:
         - application/x-www-form-urlencoded
       responses:
