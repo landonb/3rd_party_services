@@ -237,7 +237,11 @@ definitions:
   IncidentT:
     description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
     type: object
-    additionalProperties: true
+    #additionalProperties: true
+    properties:
+      incident[name]:
+        type: string
+        description: The name of the incident
 
   Incident:
     description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
