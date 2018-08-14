@@ -4,6 +4,9 @@
 
 - Depends on json validate from: `sudo pip install json-spec`
 - Depends on yaml2json from: `sudo apt install libghc-yaml-dev`
+  - #On 14.04: `npm install -g yaml2json`
+  - `pip install yq`
+  - `cat statuspage.io/swagger.yaml | yq .`
 
 ./validate
 

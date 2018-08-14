@@ -18,21 +18,26 @@ info:
   contact:
     name:       Exosite Support
     email:      support@exosite.com
-# documentation
+
+# Documentation.
 externalDocs:
   description:  Statuspage API documentation
   url:          https://doers.statuspage.io/api/v1/
 host:     api.statuspage.io
-# basePath prefixes all resource paths
+
+# The basePath is used to prefix all resource paths.
 basePath: /v1
-# tags: Categories to be referenced in documentation & marketplace
+
+# The tags are categories referenced in documentation and the IoT Marketplace.
 tags:
   - name:         Integration
     description:  Interface to communicate to the Statuspage API service
+
 schemes:
-  # the Statuspage REST API is served over HTTPS.
+  # The Statuspage REST API is served over HTTPS.
   - https
-# format of the responses to the client (Accepts)
+
+# Format of the responses to the client (Accepts).
 produces:
   - application/json
 
@@ -59,10 +64,11 @@ securityDefinitions:
      name: Authorization
      in: header
      x-exosite-from: user_api_key
-     # E.g., curl -H "Authorization: OAuth {user_api_key}" ...
+     # The Authorization header prefix is defined using x-exosite-prefix.
+     #   E.g., curl -H "Authorization: OAuth {user_api_key}" ...
      x-exosite-prefix: OAuth
 
-# Global security (applies to all operations):
+# Global security (applies to all operations): Always include the OAuth header.
 security:
   - APIKeyHeader: []
 
@@ -85,6 +91,8 @@ definitions:
     title: page_profile.hero_cover schema
     type: object
     description: Schema for successful response from page_profile method's hero_cover
+    # MAYBE: Should we just use `additionalProperties`, and remove `properties`?
+    #   additionalProperties: true
     properties:
       normal_url:
         type: string
@@ -108,6 +116,8 @@ definitions:
     title: page_profile.transactional_logo schema
     type: object
     description: Schema for successful response from page_profile method's transactional_logo
+    # MAYBE: Should we just use `additionalProperties`, and remove `properties`?
+    #   additionalProperties: true
     properties:
       normal_url:
         type: string
@@ -131,6 +141,8 @@ definitions:
     title: page_profile schema
     type: object
     description: Schema for successful response from page_profile method
+    # MAYBE: Should we just use `additionalProperties`, and remove `properties`?
+    #   additionalProperties: true
     properties:
       allow_email_subscriber:
         type: boolean
@@ -222,11 +234,16 @@ definitions:
     type: object
     additionalProperties: true
 
+  IncidentT:
+    description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
+    type: object
+    additionalProperties: true
+
   Incident:
     description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
     type: object
-    # FIXME: Can I list all the properties??
-    #additionalProperties: true
+    # MAYBE: Should we just use `additionalProperties`, and remove `properties`?
+    #   additionalProperties: true
     properties:
       name:
         type: string
@@ -470,9 +487,9 @@ paths:
       x-exosite-example: |
                     --#ENDPOINT GET /statuspage/createRealtimeIncident
 
-                    incident = Statuspage.createRealtimeIncident(
-                      {incident={name='Slow response time'}}
-                    )
+                    local incident_table = {}
+                    incident_table['incident[name]'] = 'Slow response time'
+                    incident = Statuspage.createRealtimeIncident(incident_table)
 
                     print(to_json(incident))
 
@@ -484,21 +501,54 @@ paths:
           in: body
           description: JSON formatted page object
           required: true
+          #x-exosite-expand-body-parameters: false
           schema:
-            $ref: "#/definitions/Incident"
+            #type: string
+            $ref: "#/definitions/IncidentT"
+            #$ref: "#/definitions/Incident"
+        #- name: body_param
+        #  in: body
+        #  type: object
+        #  description: JSON formatted page object
+        #  #required: true
+        #  #x-exosite-expand-body-parameters: false
+        #  schema:
+        #    #type: string
+        #    #$ref: "#/definitions/IncidentT"
+        #    #$ref: "#/definitions/Incident"
+        #    type: object
+        #    description: body content
+        #    #additionalProperties: true
+        #    properties:
+        #      key:
+        #        type: string
+        #        description: a body property
+      consumes:
+        - application/x-www-form-urlencoded
+      #parameters:
+      #  - name: body
+      #    in: formData
+      #    #in: body
+      #    description: The name of the incident.
+      #   required: true
+      #    #type: string
+      #    schema:
+      #      $ref: "#/definitions/Incident"
       responses:
         default:
+          # (lb): This default section is required, though not sure what it should contain.
           schema:
             $ref:   "#/definitions/ErrorResponse"
-            description: Schema for error response from getPageProfile method.
+            description: Schema for error response from createRealtimeIncident method.
           description: Example error response
           examples:
             application/json:
-              error: The requested resource could not be found.
+              error: XXX.
         201:
           description: 'Successful incident creation'
         422:
           description: 'Validation failed (see errors in response body)'
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ErrorResponse'
+# incident is missing, incident[name] is missing
 
