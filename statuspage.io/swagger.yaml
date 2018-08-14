@@ -55,6 +55,16 @@ x-exosite-config-parameters:
     format:       password
     required:     true
 
+parameters:
+  IncidentId:
+    name:         incident_id
+    in:           path
+    description:  Statuspage Incident ID
+    required:     true
+    type:         string
+    #pattern:      ^[a-zA-Z0-9]+$
+    #x-exosite-restricted: true
+
 ################################################################################
 #                              API Authentication                              #
 ################################################################################
@@ -512,4 +522,69 @@ paths:
           description: 'Validation failed (see errors in response body)'
           schema:
             $ref: '#/definitions/ErrorResponse'
+
+  /pages/{page_id}/incidents/{incident_id}.json:
+    parameters:
+      - name:         page_id
+        in:           path
+        description:  Statuspage Page ID
+        type:         string
+        required:     true
+        x-exosite-internal-use: true
+      - $ref: "#/parameters/IncidentId"
+    patch:
+      tags:
+        - calls
+      operationId:  updateIncident
+      summary:      Update an incident (only applies to realtime and scheduled incidents)
+      description:  Update an incident (only applies to realtime and scheduled incidents)
+      x-exosite-example: |
+                    --#ENDPOINT GET /statuspage/updateIncident
+
+                    local incident_table = {}
+                    incident_table['incident[name]'] = 'Slow response time'
+                    incident = Statuspage.createRealtimeIncident(incident_table)
+
+                    incident_table['incident[name]'] = 'Slow response time (resolved)'
+                    incident_table['incident[status]'] = 'resolved'
+                    incident = Statuspage.updateIncident(incident.id, incident_table)
+
+                    print(to_json(incident))
+
+                    response.message = incident
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: JSON formatted Incident object
+          required: true
+          schema:
+            $ref: "#/definitions/Incident"
+            #type: object
+            #description: The operation call containing the value to set.
+            #properties:
+            #  incident:
+            #    type: object
+            #    description: XXX
+            #    additionalProperties: true
+      consumes:
+        - application/x-www-form-urlencoded
+      responses:
+        default:
+          # (lb): This default section is required, though not sure what it should contain.
+          schema:
+            $ref:   "#/definitions/ErrorResponse"
+            description: Schema for error response from createRealtimeIncident method.
+          description: Example error response
+          examples:
+            application/json:
+              error: XXX.
+        200:
+          description: 'Successful call'
+        422:
+          description: 'Validation failed (see errors in response body)'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
 
