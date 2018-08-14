@@ -234,25 +234,28 @@ definitions:
     type: object
     additionalProperties: true
 
-  IncidentT:
-    description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
-    type: object
-    #additionalProperties: true
-    properties:
-      incident[name]:
-        type: string
-        description: The name of the incident
+  #IncidentT:
+  #  description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
+  #  type: object
+  #  #additionalProperties: true
+  #  properties:
+  #    incident[name]:
+  #      type: string
+  #      description: The name of the incident
 
   Incident:
     description: JSON Incident Object. See https://doers.statuspage.io/api/v1/incidents/#create-realtime
     type: object
     # MAYBE: Should we just use `additionalProperties`, and remove `properties`?
     #   additionalProperties: true
+    #   I think because of parameters such as `incident[components][component_id]`
+    #     that that's probably the best option as this point.
+    #
     properties:
-      name:
+      incident[name]:
         type: string
         description: The name of the incident
-      status:
+      incident[status]:
         type: string
         enum:
           - investigating
@@ -260,13 +263,13 @@ definitions:
           - monitoring
           - resolved
         description: The status, one of investigating|identified|monitoring|resolved (optional, defaults to investigating if left blank)
-      body:
+      incident[body]:
         type: string
         description: The initial message, created as the first incident update (optional)
-      wants_twitter_update:
+      incident[wants_twitter_update]:
         type: boolean
         description: Post the new incident to twitter (t or f, defaults to f)
-      impact_override:
+      incident[impact_override]:
         type: string
         enum:
           - none
@@ -274,16 +277,17 @@ definitions:
           - major
           - critical
         description: Override calculated impact value, one of none|minor|major|critical (optional)
-      deliver_notifications:
+      incident[deliver_notifications]:
         type: boolean
         description: 'Control whether notifications should be delivered for the initial incident update (optional, default: true)'
-      component_ids:
+      incident[component_ids]:
         type: array
         items:
           type: string
           description:  Component ID
         description:  List of components affected by the incident
-      components:
+# XXX ???
+      incident[components]:
         type: object
         # (lb): Object keys are the component IDs. Does this work?:
         additionalProperties: true
@@ -291,6 +295,7 @@ definitions:
         #  type: object
         #  description:  XXX
         description: incident[components][component_id] - Map of status changes to apply to affected components.
+    additionalProperties: true
 
 ################################################################################
 #                                           Paths                              #
@@ -508,8 +513,8 @@ paths:
           #x-exosite-expand-body-parameters: false
           schema:
             #type: string
-            $ref: "#/definitions/IncidentT"
-            #$ref: "#/definitions/Incident"
+            #$ref: "#/definitions/IncidentT"
+            $ref: "#/definitions/Incident"
         #- name: body_param
         #  in: body
         #  type: object
